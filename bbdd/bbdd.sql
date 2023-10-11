@@ -1,6 +1,6 @@
 CREATE TABLE jugadores (
     id_jugador INT AUTO_INCREMENT PRIMARY KEY,
-    contraseña VARCHAR(255) NOT NULL,
+    contrasenia VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
     partidas_jugadas INT DEFAULT 0,
     partidas_ganadas INT DEFAULT 0,
@@ -16,3 +16,4 @@ CREATE TABLE partidas (
     estado_partida INT DEFAULT 0, -- -1: perdida, 0: en juego, 1: ganada
     FOREIGN KEY (id_jugador) REFERENCES jugadores(id_jugador)
 );
+
