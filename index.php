@@ -26,15 +26,21 @@ function manejadorSolicitudes()
                 case 'admin':
                     $esAdministrador = Controlador::esAdministrador($email, $contrasenia);
                     if ($esAdministrador) {
-                        metodosAdministrador($args,$datosDecodificados);
+                        metodosAdministrador($args, $datosDecodificados);
                     }
                     break;
+
+                case 'jugar':
+                    metodosJuego();
+                    break;
+
             }
         }
     }
 }
 
-function metodosAdministrador($args,$datosDecodificados){
+function metodosAdministrador($args, $datosDecodificados)
+{
     $metodoPeticion = $_SERVER['REQUEST_METHOD'];
     if ($metodoPeticion === 'GET') {
         if (count($args) > 2 && $args[2] === 'jugador' && isset($args[3])) {
@@ -44,25 +50,31 @@ function metodosAdministrador($args,$datosDecodificados){
             Controlador::obtenerJugadores();
         }
     } elseif ($metodoPeticion === 'POST') {
-        if(count($args)==2 && $args[2]=='agregarJugador'){
+        if (count($args) == 2 && $args[2] == 'agregarJugador') {
             $datosJugador = $datosDecodificados['jugador'][0]; // El índice 0 accede al primer jugador en la lista
             $email = $datosJugador['email'];
             $contrasenia = $datosJugador['contrasenia'];
             $esAdmin = $datosJugador['es_administrador'];
-    
-            $jugador= Factoria::crearJugador($email,$contrasenia,$esAdmin);
+
+            $jugador = Factoria::crearJugador($email, $contrasenia, $esAdmin);
             Controlador::aniadirJugador($jugador);
         }
 
 
     } elseif ($metodoPeticion === 'PUT') {
 
-      
+
 
     } elseif ($metodoPeticion == 'DELETE') {
-        if (count($args) ==3 && $args[2] === 'jugador' && isset($args[3])) {
+        if (count($args) == 3 && $args[2] === 'jugador' && isset($args[3])) {
             $jugadorID = $args[3];
             Controlador::eliminarJugador($jugadorID);
-        } 
+        }
     }
+}
+
+
+function metodosJuego()
+{
+
 }
