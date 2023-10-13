@@ -11,8 +11,6 @@ class AuntenticacionModelo{
         $resultado = false;
         
         $conexion = Conectar::conectar();
-
-        
         $consulta = "SELECT COUNT(id_jugador) FROM jugadores WHERE email=? AND contrasenia=?";
         $stmt = $conexion->prepare($consulta);
     
@@ -39,6 +37,26 @@ class AuntenticacionModelo{
     
         return $resultado;
     }
+
+    static function obtenerIDJugador($email, $contrasenia) {
+        $conexion = Conectar::conectar();
+        $consulta = "SELECT id_jugador FROM jugadores WHERE email = ? AND contrasenia = ?";
+        $stmt = $conexion->prepare($consulta);
+        $stmt->bind_param('ss', $email, $contrasenia);
+        
+        // Ejecutar la consulta
+        $stmt->execute();
     
+        // Obtener el resultado
+        $stmt->bind_result($id_jugador);
+    
+        if ($stmt->fetch()) {
+            $stmt->close();
+            return $id_jugador;
+        } else {
+            $stmt->close();
+            return null;
+        }
+    }
 }
 

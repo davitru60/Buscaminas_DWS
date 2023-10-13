@@ -27,15 +27,25 @@ function manejadorSolicitudes()
                     $esAdministrador = Controlador::esAdministrador($email, $contrasenia);
                     if ($esAdministrador) {
                         metodosAdministrador($args, $datosDecodificados);
+                    }else{
+                        enviarRespuestaError(403, 'No tienes permisos de administrador');
                     }
                     break;
 
                 case 'jugar':
-                    metodosJuego();
+                    metodosJuego($args,$datosDecodificados);
+                    break;
+
+                case 'ranking':
+                    metodosRanking();
                     break;
 
             }
+        }else{
+            enviarRespuestaError(401, 'Credenciales de usuario incorrectas');
         }
+    }else{
+        enviarRespuestaError(400, 'Solicitud incorrecta o datos inválidos');
     }
 }
 
@@ -73,8 +83,36 @@ function metodosAdministrador($args, $datosDecodificados)
     }
 }
 
+function metodosJuego($args,$datosDecodificados){
+    $metodoPeticion = $_SERVER['REQUEST_METHOD'];
+    $email = $datosDecodificados['email'];
+    $contrasenia = $datosDecodificados['contrasenia'];
+    $jugadorID= Controlador::obtenerIDJugador($email,$contrasenia);
 
-function metodosJuego()
-{
+    if($metodoPeticion==='POST'){
+        if(isset($args[2]) && isset($args[3])){
+            $tamanio= (int)$args[2];
+            $nMinas= (int)$args[3];
+            Controlador::crearTablero($tamanio,$nMinas,$jugadorID);
+        }else{
+            Controlador::crearTablero(Constantes::$TAM_TABLERO,Constantes::$MINAS,$jugadorID);
+        }
+    }
+}
 
+function metodosRanking(){
+    $metodoPeticion = $_SERVER['REQUEST_METHOD'];
+    if($metodoPeticion=='GET'){
+        Controlador::obtenerRanking();
+    }
+}
+
+function enviarRespuestaError($codigo, $mensaje) {
+    header('Content-Type: application/json');
+    http_response_code($codigo);
+    $response = array(
+        'codigo' => $codigo,
+        'mensaje' => $mensaje
+    );
+    echo json_encode($response);
 }

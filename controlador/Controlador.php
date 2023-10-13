@@ -1,6 +1,9 @@
 <?php
 require_once './modelo/AdministradorModelo.php';
 require_once './modelo/AuntenticacionModelo.php';
+require_once './modelo/RankingModelo.php';
+require_once './modelo/TableroModelo.php';
+require_once './modelo/Factoria.php';
 
 class Controlador{
     static function obtenerJugadores(){
@@ -53,13 +56,35 @@ class Controlador{
         }
     }
 
-
     static function validarJugador($email,$contrasenia){
         return AuntenticacionModelo::validarJugador($email,$contrasenia);
     }
    
     static function esAdministrador($email,$contrasenia){
        return AdministradorModelo::esAdministrador($email,$contrasenia);
+    }
+
+    static function obtenerIDJugador($email,$contrasenia){
+        return AuntenticacionModelo::obtenerIDJugador($email,$contrasenia);
+
+    }
+
+    static function crearTablero($tamanio,$numMinas,$jugadorID){
+        $tablero=Factoria::crearTablero($tamanio,$numMinas);
+        $tableroT=Factoria::crearTableroT($tamanio);
+
+        if (TableroModelo::insertarTablero($jugadorID, $tablero,$tableroT)) {
+            self::enviarRespuestaJSON(201, 'Tablero creado y registrado exitosamente');
+        } else {
+            self::enviarRespuestaJSON(500, 'Error al crear y registrar el tablero');
+        }
+    }
+
+    static function obtenerRanking(){
+        $jugadores = RankingModelo::obtenerRanking();
+        if($jugadores){
+            self::enviarRespuestaJSON(200,$jugadores);
+        }
     }
 
     private static function enviarRespuestaJSON($codigo, $mensaje){
