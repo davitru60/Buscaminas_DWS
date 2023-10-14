@@ -15,7 +15,6 @@ class Tablero {
     }
 
 
-
     private function inicializarTablero($tamanio, $numMinas) {
         $tablero = array_fill(0, $tamanio, 0);
         

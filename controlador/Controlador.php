@@ -1,13 +1,12 @@
 <?php
-require_once './modelo/AdministradorModelo.php';
-require_once './modelo/AuntenticacionModelo.php';
-require_once './modelo/RankingModelo.php';
+require_once './modelo/JugadorModelo.php';
 require_once './modelo/TableroModelo.php';
+require_once './modelo/PartidaModelo.php';
 require_once './modelo/Factoria.php';
 
 class Controlador{
     static function obtenerJugadores(){
-        $jugadores = AdministradorModelo::obtenerJugadores();
+        $jugadores = JugadorModelo::obtenerJugadores();
         if($jugadores){
             self::enviarRespuestaJSON(200,$jugadores);
         }
@@ -19,7 +18,7 @@ class Controlador{
             self::enviarRespuestaJSON(400, 'ID de persona no válido');
         }
 
-        $jugador= AdministradorModelo::obtenerJugadoresPorID($id);
+        $jugador= JugadorModelo::obtenerJugadoresPorID($id);
         if($jugador){
             self::enviarRespuestaJSON(200, $jugador);
         }else{
@@ -29,7 +28,7 @@ class Controlador{
     }
 
     static function aniadirJugador($jugador){
-        if(AdministradorModelo::registrarJugador($jugador)){
+        if(JugadorModelo::registrarJugador($jugador)){
             self::enviarRespuestaJSON(201, 'Jugador creado exitosamente');
         }else{
             self::enviarRespuestaJSON(500, 'Error al agregar jugador');
@@ -37,7 +36,7 @@ class Controlador{
     }
 
     static function modificarJugador($jugador){
-        if(AdministradorModelo::modificarJugador($jugador)){
+        if(JugadorModelo::modificarJugador($jugador)){
             self::enviarRespuestaJSON(200, 'Jugador actualizado exitosamente');
         }else{
             self::enviarRespuestaJSON(404, 'Jugador no encontrado o error en la actualización');
@@ -49,24 +48,32 @@ class Controlador{
             self::enviarRespuestaJSON(400, 'ID del jugador no válido');
         }
         
-        if (AdministradorModelo::eliminarJugador($id)) {
+        if (JugadorModelo::eliminarJugador($id)) {
             self::enviarRespuestaJSON(200, 'Jugador eliminado exitosamente');
         } else {
             self::enviarRespuestaJSON(404, 'Jugador no encontrado o error en la eliminación');
         }
     }
 
+    static function esAdministrador($email,$contrasenia){
+        return JugadorModelo::esAdministrador($email,$contrasenia);
+     }
+
     static function validarJugador($email,$contrasenia){
-        return AuntenticacionModelo::validarJugador($email,$contrasenia);
+        return JugadorModelo::validarJugador($email,$contrasenia);
     }
    
-    static function esAdministrador($email,$contrasenia){
-       return AdministradorModelo::esAdministrador($email,$contrasenia);
+   
+    static function obtenerIDJugador($email,$contrasenia){
+        return JugadorModelo::obtenerIDJugador($email,$contrasenia);
+
     }
 
-    static function obtenerIDJugador($email,$contrasenia){
-        return AuntenticacionModelo::obtenerIDJugador($email,$contrasenia);
-
+    static function obtenerRanking(){
+        $jugadores = JugadorModelo::obtenerRanking();
+        if($jugadores){
+            self::enviarRespuestaJSON(200,$jugadores);
+        }
     }
 
     static function crearTablero($tamanio,$numMinas,$jugadorID){
@@ -80,13 +87,14 @@ class Controlador{
         }
     }
 
-    static function obtenerRanking(){
-        $jugadores = RankingModelo::obtenerRanking();
-        if($jugadores){
-            self::enviarRespuestaJSON(200,$jugadores);
-        }
+    static function esPartidaCreada($jugadorID){
+        return PartidaModelo::esPartidaCreada($jugadorID);
     }
 
+    static function esPartidaAbierta($jugadorID){
+        return PartidaModelo::esPartidaAbierta($jugadorID);
+    }
+    
     private static function enviarRespuestaJSON($codigo, $mensaje){
         header('Content-Type: application/json');
         http_response_code($codigo);

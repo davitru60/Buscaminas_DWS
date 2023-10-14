@@ -1,7 +1,7 @@
 <?php
 // Creación de las rutas
 require_once './controlador/Controlador.php';
-require_once './modelo/AuntenticacionModelo.php';
+require_once './modelo/JugadorModelo.php';
 require_once './modelo/Factoria.php';
 
 manejadorSolicitudes();
@@ -26,69 +26,100 @@ function manejadorSolicitudes()
                 case 'admin':
                     $esAdministrador = Controlador::esAdministrador($email, $contrasenia);
                     if ($esAdministrador) {
-                        metodosAdministrador($args, $datosDecodificados);
+                        peticionesAdministrador($args, $datosDecodificados);
                     }else{
-                        enviarRespuestaError(403, 'No tienes permisos de administrador');
+                        enviarRespuesta(403, 'No tienes permisos de administrador');
                     }
                     break;
 
-                case 'jugar':
-                    metodosJuego($args,$datosDecodificados);
+                case 'crearPartida':
+                    peticionCrearPartida($args,$datosDecodificados);
                     break;
 
+                
+                case 'jugar':
+                    peticionesJugar($args,$datosDecodificados);
+                    break;
+
+
                 case 'ranking':
-                    metodosRanking();
+                    peticionRanking();
+                    break;
+
+                case 'rendicion':
+
                     break;
 
             }
         }else{
-            enviarRespuestaError(401, 'Credenciales de usuario incorrectas');
+            enviarRespuesta(401, 'Credenciales de usuario incorrectas');
         }
     }else{
-        enviarRespuestaError(400, 'Solicitud incorrecta o datos inválidos');
+        enviarRespuesta(400, 'Solicitud incorrecta o datos inválidos');
     }
 }
 
-function metodosAdministrador($args, $datosDecodificados)
+function peticionesAdministrador($args, $datosDecodificados)
 {
     $metodoPeticion = $_SERVER['REQUEST_METHOD'];
     if ($metodoPeticion === 'GET') {
-        if (count($args) > 2 && $args[2] === 'jugador' && isset($args[3])) {
-            $jugadorID = $args[3];
-            Controlador::obtenerJugadorPorID($jugadorID);
-        } else {
-            Controlador::obtenerJugadores();
-        }
+       metodoGetAdmin($args);
     } elseif ($metodoPeticion === 'POST') {
-        if (count($args) == 2 && $args[2] == 'agregarJugador') {
-            $datosJugador = $datosDecodificados['jugador'][0]; // El índice 0 accede al primer jugador en la lista
-            $email = $datosJugador['email'];
-            $contrasenia = $datosJugador['contrasenia'];
-            $esAdmin = $datosJugador['es_administrador'];
-
-            $jugador = Factoria::crearJugador($email, $contrasenia, $esAdmin);
-            Controlador::aniadirJugador($jugador);
-        }
-
-
-    } elseif ($metodoPeticion === 'PUT') {
-
-
-
-    } elseif ($metodoPeticion == 'DELETE') {
-        if (count($args) == 3 && $args[2] === 'jugador' && isset($args[3])) {
-            $jugadorID = $args[3];
-            Controlador::eliminarJugador($jugadorID);
-        }
+        metodoPostAdmin($args,$datosDecodificados);
+    } elseif ($metodoPeticion === 'DELETE') {
+        metodoDeleteAdmin($args);
+    } else {
+        enviarRespuesta(405, 'Método no permitido');
     }
 }
 
-function metodosJuego($args,$datosDecodificados){
+function metodoGetAdmin($args){
+    if (count($args) == 1) {
+        Controlador::obtenerJugadores();
+    } elseif (count($args) == 3 && $args[2] === 'jugador' && is_numeric($args[3])) {
+        $jugadorID = (int)$args[3];
+        Controlador::obtenerJugadorPorID($jugadorID);
+    } else {
+        enviarRespuesta(400, 'Solicitud GET incorrecta');
+    }
+}
+
+function metodoPostAdmin($args,$datosDecodificados){
+    if (count($args) == 2 && $args[2] == 'agregarJugador') {
+        $datosJugador = $datosDecodificados['jugador'][0];
+        
+        if (
+            isset($datosJugador['email']) && isset($datosJugador['contrasenia']) &&
+            filter_var($datosJugador['email'], FILTER_VALIDATE_EMAIL) &&
+            !empty($datosJugador['contrasenia'])
+        ) {
+            $esAdmin = isset($datosJugador['es_administrador']) ? $datosJugador['es_administrador'] : false;
+            $jugador = Factoria::crearJugador($datosJugador['email'], $datosJugador['contrasenia'], $esAdmin);
+            Controlador::aniadirJugador($jugador);
+        } else {
+            enviarRespuesta(400, 'Datos de jugador incorrectos para POST');
+        }
+    } else {
+        enviarRespuesta(400, 'Solicitud POST incorrecta');
+    }
+}
+
+function metodoDeleteAdmin($args){
+    if (count($args) == 3 && $args[2] === 'jugador' && is_numeric($args[3])) {
+        $jugadorID = (int)$args[3];
+        Controlador::eliminarJugador($jugadorID);
+    } else {
+        enviarRespuesta(400, 'Solicitud DELETE incorrecta');
+    }
+}
+
+function peticionCrearPartida($args,$datosDecodificados){
     $metodoPeticion = $_SERVER['REQUEST_METHOD'];
     $email = $datosDecodificados['email'];
     $contrasenia = $datosDecodificados['contrasenia'];
     $jugadorID= Controlador::obtenerIDJugador($email,$contrasenia);
 
+    
     if($metodoPeticion==='POST'){
         if(isset($args[2]) && isset($args[3])){
             $tamanio= (int)$args[2];
@@ -100,14 +131,38 @@ function metodosJuego($args,$datosDecodificados){
     }
 }
 
-function metodosRanking(){
+function peticionesJugar($args, $datosDecodificados) {
+    $metodoPeticion = $_SERVER['REQUEST_METHOD'];
+    $email = $datosDecodificados['email'];
+    $contrasenia = $datosDecodificados['contrasenia'];
+    $jugadorID = Controlador::obtenerIDJugador($email, $contrasenia);
+
+    $esPartidaCreada = Controlador::esPartidaCreada($jugadorID);
+    $partidaAbierta = Controlador::esPartidaAbierta($jugadorID);
+
+    if ($esPartidaCreada) {
+        if ($partidaAbierta === 0) {
+            enviarRespuesta(200, 'La partida está en funcionamiento.');
+        } elseif ($partidaAbierta === -1) {
+            enviarRespuesta(200, 'La partida está perdida.');
+        } elseif ($partidaAbierta === 1) {
+            enviarRespuesta(200, '¡Has ganado la partida!');
+        }
+    } else {
+        enviarRespuesta(404, 'No tienes partidas creadas');
+    }
+}
+
+
+
+function peticionRanking(){
     $metodoPeticion = $_SERVER['REQUEST_METHOD'];
     if($metodoPeticion=='GET'){
         Controlador::obtenerRanking();
     }
 }
 
-function enviarRespuestaError($codigo, $mensaje) {
+function enviarRespuesta($codigo, $mensaje) {
     header('Content-Type: application/json');
     http_response_code($codigo);
     $response = array(
@@ -116,3 +171,4 @@ function enviarRespuestaError($codigo, $mensaje) {
     );
     echo json_encode($response);
 }
+
