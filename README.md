@@ -1,6 +1,9 @@
 # Primer desafío de Desarrollo Web en Entorno Servidor
 
-¿
+## 🛠️ Requisitos
+- Tener instalado y configurado correctamente XAMPP.
+- Tener instalado el editor de texto Visual Studio Code para usar la extensión ThunderClient (instalar Visual Studio Code no es completamente necesario si empleamos un cliente externo como es Postman,
+ aunque para los ejemplos se empleará ThunderClient).
 
 Para poder iniciar la aplicación tendremos que proporcionar un usuario en formato JSON, he aquí un ejemplo.
 ```json
