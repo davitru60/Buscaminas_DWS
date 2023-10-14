@@ -7,7 +7,7 @@ Este proyecto se centra en el desarrollo de una API REST realizada en PHP, que p
 - Tener instalado el editor de texto Visual Studio Code para usar la extensión ThunderClient (instalar Visual Studio Code no es completamente necesario si empleamos un cliente externo como es Postman,
  aunque para los ejemplos se empleará ThunderClient).
 
-Para poder acceder a las rutas del servicio tendremos que proporcionar un usuario correcto en formato JSON, he aquí un ejemplo.
+Para poder acceder a las rutas del servicio tendremos que proporcionar un usuario correcto en formato JSON, he aquí un ejemplo:
 ```json
 {
    "email": "jugador1@example.com",
