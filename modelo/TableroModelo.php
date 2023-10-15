@@ -2,11 +2,11 @@
 require_once './bbdd/Conexion.php';
 class TableroModelo{
 
-    static function insertarTablero($jugadorID,$tablero,$tableroT){
+    static function insertarTablero($jugadorID,$tableroOculto,$tableroJugador){
         $conexion = Conectar::conectar();
         $consulta = "INSERT INTO partidas (id_jugador,tablero_oculto,tablero_jugador) VALUES (?,?,?)";
         $stmt = $conexion->prepare($consulta);
-        $stmt-> bind_param("iss",$jugadorID,$tablero,$tableroT);
+        $stmt-> bind_param("iss",$jugadorID,$tableroOculto,$tableroJugador);
 
         
         $ejecucionCorrecta = true;

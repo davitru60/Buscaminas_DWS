@@ -4,6 +4,6 @@ class Constantes{
     static $USUARIO="root";
     static $CLAVE="";
     static $BBDD="buscaminas";
-    static $TAM_TABLERO=25;
-    static $MINAS=5;
+    static $TAM_TABLERO=20;
+    static $MINAS=3;
 }

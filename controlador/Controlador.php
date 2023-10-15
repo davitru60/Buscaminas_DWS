@@ -77,24 +77,84 @@ class Controlador{
     }
 
     static function crearTablero($tamanio,$numMinas,$jugadorID){
-        $tablero=Factoria::crearTablero($tamanio,$numMinas);
-        $tableroT=Factoria::crearTableroT($tamanio);
+        $tableroOculto=Factoria::crearTableroOculto($tamanio,$numMinas);
+        $tableroJugador=Factoria::crearTableroJugador($tamanio);
 
-        if (TableroModelo::insertarTablero($jugadorID, $tablero,$tableroT)) {
+        if (TableroModelo::insertarTablero($jugadorID, $tableroOculto,$tableroJugador)) {
             self::enviarRespuestaJSON(201, 'Tablero creado y registrado exitosamente');
         } else {
             self::enviarRespuestaJSON(500, 'Error al crear y registrar el tablero');
-        }
+        }     
+    }
+
+    static function obtenerTableros(){
+
     }
 
     static function esPartidaCreada($jugadorID){
         return PartidaModelo::esPartidaCreada($jugadorID);
     }
 
-    static function esPartidaAbierta($jugadorID){
-        return PartidaModelo::esPartidaAbierta($jugadorID);
+    static function obtenerEstadoPartida($jugadorID){
+        return PartidaModelo::ObtenerEstadoPartida($jugadorID);
+    }
+
+    static function jugar($jugadorID,$casilla){
+        $tableroOculto=self::obtenerTableroOculto($jugadorID);
+        $tableroJugador=self::obtenerTableroJugador($jugadorID);
+        
+
+        $partida=Factoria::crearPartida($tableroOculto,$tableroJugador);
+        $resultado= $partida->destaparCasilla($casilla);
+        $mensaje= $resultado['mensaje'];
+        $tableroActualizado= $resultado['tableroJugador'];
+    }
+
+
+     static function obtenerTableroOculto($jugadorID){
+        $tableroOculto=PartidaModelo::obtenerTableroOculto($jugadorID);
+
+        if($tableroOculto !==null){
+            $tableroOcultoArray = explode(' ', $tableroOculto);
+            return $tableroOcultoArray;
+        }
+    }
+
+    private static function obtenerTableroJugador($jugadorID) {
+        $tablero = PartidaModelo::obtenerTableroJugador($jugadorID);
+        if ($tablero !== null) {
+            $tableroArray = explode(' ',$tablero);
+            return $tableroArray;
+        }
+        return null;
     }
     
+    static function rendirse($jugadorID) {
+        $respuestas = array();
+    
+        // Obtener el tablero
+        $tablero = self::obtenerTableroJugador($jugadorID);
+        if ($tablero !== null) {
+            $tableroStr = implode('', $tablero); // Convierte el array en una cadena
+            
+            $tableroStr = str_replace(["\n", "\r"], '', $tableroStr);
+            $respuestas['tablero'] = $tableroStr;
+            
+        }
+    
+        // Rendirse
+        $partidaActual = PartidaModelo::rendirse($jugadorID);
+        if ($partidaActual) {
+            $respuestas['estado_partida'] = 'Se ha cerrado la partida';
+        } else {
+            $respuestas['estado_partida'] = 'Algo fue mal';
+        }
+    
+        // Enviar todas las respuestas en un solo JSON
+        self::enviarRespuestaJSON(200, $respuestas);
+    }
+
+
     private static function enviarRespuestaJSON($codigo, $mensaje){
         header('Content-Type: application/json');
         http_response_code($codigo);
