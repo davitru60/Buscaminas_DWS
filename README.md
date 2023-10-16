@@ -46,8 +46,6 @@ Para que el administrador pueda añadir nuevos usuarios a la base de datos, nece
 }
 ```
 
-### Peticiones POST
-
 Mantenemos el email y la contraseña del administrador para poder estar validados y acceder a las rutas. Después si queremos añadir un usuario creamos una línea más en el JSON con los datos del usuario, en este caso con tan solo añadir el email y la contraseñia bastaría ya que el resto de cosas se añaden como datos por defecto en la base de datos.
 
 - `POST /admin/agregarJugador`: Esta es la ruta que necesitará el administrador para poder añadir un nuevo registro.
@@ -56,7 +54,10 @@ Mantenemos el email y la contraseña del administrador para poder estar validado
 - `DELETE /admin/jugador/{id}`: Con esta ruta el administrador elimina un jugador de la base datos dada su id. Por ejemplo  /admin/jugador/14 (Elimina al usuario con id=14).
 
 ## Rutas para todos los jugadores
+### Peticiones GET
+- `GET /ranking`: Con esta ruta los jugadores podrán obtener el ranking de los jugadores. De tal forma que primero se muestren los jugadores con mayor cantidad de partidas ganadas.
 
 ### Peticiones POST
-- `POST /crearPartida`: Con esta ruta los jugadores podrán crear una partida de buscaminas. Si no se especifica ningún argumento más el tablero será de un tamaño de 20 casillas e incluirá 3 bombas
+- `POST /crearPartida`: Con esta ruta los jugadores podrán crear una partida de buscaminas con un tamaño predeterminado. Si no se especifica ningún argumento más el tablero será de un tamaño de 20 casillas e incluirá 3 bombas
+- `POST /crearPartida/{tamañoTablero}{cantidadMinas}`: Con esta ruta los jugadores podrán crear una partida con el tamaño que ellos quieran. 
 
