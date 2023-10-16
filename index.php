@@ -1,6 +1,8 @@
 <?php
 // Creación de las rutas
 require_once './controlador/Controlador.php';
+require_once './controlador/ControladorJugador.php';
+require_once './controlador/ControladorJuego.php';
 require_once './modelo/JugadorModelo.php';
 require_once './modelo/Factoria.php';
 
@@ -19,12 +21,12 @@ function manejadorSolicitudes()
     if ($datosDecodificados) {
         $email = $datosDecodificados['email'];
         $contrasenia = $datosDecodificados['contrasenia'];
-        $usuario = Controlador::validarJugador($email, $contrasenia);
+        $usuario = ControladorJugador::validarJugador($email, $contrasenia);
 
         if ($usuario) {
             switch ($args[1]) {
                 case 'admin':
-                    $esAdministrador = Controlador::esAdministrador($email, $contrasenia);
+                    $esAdministrador = ControladorJugador::esAdministrador($email, $contrasenia);
                     if ($esAdministrador) {
                         peticionesAdministrador($args, $datosDecodificados);
                     } else {
@@ -42,7 +44,7 @@ function manejadorSolicitudes()
                     break;
 
                 case 'rendicion':
-                    peticionRendicion($datosDecodificados);
+                    peticionRendicion($args, $datosDecodificados);
                     break;
 
 
@@ -80,10 +82,10 @@ function peticionesAdministrador($args, $datosDecodificados)
 function metodoGetAdmin($args)
 {
     if (count($args) == 1) {
-        Controlador::obtenerJugadores();
+        ControladorJugador::obtenerJugadores();
     } elseif (count($args) == 3 && $args[2] === 'jugador' && is_numeric($args[3])) {
         $jugadorID = (int) $args[3];
-        Controlador::obtenerJugadorPorID($jugadorID);
+        ControladorJugador::obtenerJugadorPorID($jugadorID);
     } else {
         enviarRespuesta(400, 'Solicitud GET incorrecta');
     }
@@ -101,7 +103,7 @@ function metodoPostAdmin($args, $datosDecodificados)
         ) {
             $esAdmin = isset($datosJugador['es_administrador']) ? $datosJugador['es_administrador'] : false;
             $jugador = Factoria::crearJugador($datosJugador['email'], $datosJugador['contrasenia'], $esAdmin);
-            Controlador::aniadirJugador($jugador);
+            ControladorJugador::aniadirJugador($jugador);
         } else {
             enviarRespuesta(400, 'Datos de jugador incorrectos para POST');
         }
@@ -114,7 +116,7 @@ function metodoDeleteAdmin($args)
 {
     if (count($args) == 3 && $args[2] === 'jugador' && is_numeric($args[3])) {
         $jugadorID = (int) $args[3];
-        Controlador::eliminarJugador($jugadorID);
+        ControladorJugador::eliminarJugador($jugadorID);
     } else {
         enviarRespuesta(400, 'Solicitud DELETE incorrecta');
     }
@@ -125,18 +127,18 @@ function peticionCrearPartida($args, $datosDecodificados)
     $metodoPeticion = $_SERVER['REQUEST_METHOD'];
     $email = $datosDecodificados['email'];
     $contrasenia = $datosDecodificados['contrasenia'];
-    $jugadorID = Controlador::obtenerIDJugador($email, $contrasenia);
+    $jugadorID = ControladorJugador::obtenerIDJugador($email, $contrasenia);
 
 
     if ($metodoPeticion === 'POST') {
         if (isset($args[2]) && isset($args[3])) {
             $tamanio = (int) $args[2];
             $nMinas = (int) $args[3];
-            Controlador::crearTablero($tamanio, $nMinas, $jugadorID);
+            ControladorJuego::crearTablero($tamanio, $nMinas, $jugadorID);
         } else {
-            Controlador::crearTablero(Constantes::$TAM_TABLERO, Constantes::$MINAS, $jugadorID);
+            ControladorJuego::crearTablero(Constantes::$TAM_TABLERO, Constantes::$MINAS, $jugadorID);
         }
-    }else{
+    } else {
         enviarRespuesta(400, 'Solicitud POST incorrecta');
     }
 }
@@ -146,42 +148,57 @@ function peticionesJugar($args, $datosDecodificados)
     $metodoPeticion = $_SERVER['REQUEST_METHOD'];
     $email = $datosDecodificados['email'];
     $contrasenia = $datosDecodificados['contrasenia'];
-    $casilla= $datosDecodificados['casilla'];
-    $jugadorID = Controlador::obtenerIDJugador($email, $contrasenia);
+    $casilla = $datosDecodificados['casilla'];
+    $jugadorID = ControladorJugador::obtenerIDJugador($email, $contrasenia);
+   
 
-    $esPartidaCreada = Controlador::esPartidaCreada($jugadorID);
-    $partidaAbierta = Controlador::obtenerEstadoPartida($jugadorID);
+    if(count($args)==1){
+        ControladorJuego::obtenerPartidasJugador($jugadorID);
+    }
 
-    if ($esPartidaCreada) {
-        if ($partidaAbierta === 0) {
-            Controlador::jugar($jugadorID,$casilla);
+    if (isset($args[2])) {
+        $partidaID = $args[2];
+        $esPartidaCreada = ControladorJuego::esPartidaCreada($jugadorID, $partidaID);
+        $partidaAbierta = ControladorJuego::obtenerEstadoPartida($jugadorID,$partidaID);
+
+        if ($esPartidaCreada) {
+            if ($partidaAbierta === 0) {
+                ControladorJuego::jugar($jugadorID,$partidaID, $casilla);
 
 
-        } elseif ($partidaAbierta === -1) {
-            enviarRespuesta(200, 'La partida está perdida.');
-        } elseif ($partidaAbierta === 1) {
-            enviarRespuesta(200, '¡Has ganado la partida!');
+            } elseif ($partidaAbierta === -1) {
+                enviarRespuesta(200, 'La partida está perdida.');
+            } elseif ($partidaAbierta === 1) {
+                enviarRespuesta(200, '¡Has ganado la partida!');
+            }
+        } else {
+            enviarRespuesta(404, 'No tienes partidas creadas');
+
         }
-    } else {
-        enviarRespuesta(404, 'No tienes partidas creadas');
-       
     }
 }
 
-function peticionRendicion($datosDecodificados)
+function peticionRendicion($args, $datosDecodificados)
 {
     $metodoPeticion = $_SERVER['REQUEST_METHOD'];
     $email = $datosDecodificados['email'];
     $contrasenia = $datosDecodificados['contrasenia'];
-    $jugadorID = Controlador::obtenerIDJugador($email, $contrasenia);
+    $jugadorID = ControladorJugador::obtenerIDJugador($email, $contrasenia);
+
+
 
     if ($metodoPeticion === 'PUT') {
-        $esPartidaCreada = Controlador::esPartidaCreada($jugadorID);
-        if($esPartidaCreada){
-            Controlador::rendirse($jugadorID);
-        }else{
-            enviarRespuesta(404, 'No tienes partidas creadas');
+        if (isset($args[2])) {
+            $partidaID = $args[2];
+            $esPartidaCreada = ControladorJuego::esPartidaCreada($jugadorID, $partidaID);
+            if ($esPartidaCreada) {
+                ControladorJuego::rendirse($jugadorID,$partidaID);
+            } else {
+                enviarRespuesta(404, 'No tienes partidas creadas');
+            }
         }
+
+
     } else {
         enviarRespuesta(405, 'Método no permitido');
     }
@@ -192,7 +209,7 @@ function peticionRanking()
 {
     $metodoPeticion = $_SERVER['REQUEST_METHOD'];
     if ($metodoPeticion == 'GET') {
-        Controlador::obtenerRanking();
+        ControladorJugador::obtenerRanking();
     }
 }
 
