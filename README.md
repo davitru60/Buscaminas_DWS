@@ -55,3 +55,8 @@ Mantenemos el email y la contraseña del administrador para poder estar validado
 ### Peticiones DELETE
 - `DELETE /admin/jugador/{id}`: Con esta ruta el administrador elimina un jugador de la base datos dada su id. Por ejemplo  /admin/jugador/14 (Elimina al usuario con id=14).
 
+## Rutas para todos los jugadores
+
+### Peticiones POST
+- `POST /crearPartida`: Con esta ruta los jugadores podrán crear una partida de buscaminas. Si no se especifica ningún argumento más el tablero será de un tamaño de 20 casillas e incluirá 3 bombas
+
