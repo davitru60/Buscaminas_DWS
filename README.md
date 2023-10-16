@@ -31,3 +31,27 @@ El administrador gestionará: altas, bajas, modificaciones, activaciones y acces
 - `GET /admin`: Con esta ruta el administrador obtiene los datos de todos los jugadores de la base de datos. <br>
 - `GET /admin/jugador/{id}`: Con esta ruta el administrador obtiene los datos de un usuario en concreto de la base de datos dada su id. Por ejemplo: /admin/jugador/12 (Obtiene los datos del usuario con id=12).
 
+### Peticiones POST
+Para que el administrador pueda añadir nuevos usuarios a la base de datos, necesitamos un JSON con el siguiente formato:
+```json
+{
+   "email": "jugador1@example.com",
+   "contrasenia": "contrasenia1",
+   "jugador": [
+      {
+        "email":"jugadorPrueba@example.com",
+        "contrasenia":"contrasenia123"
+      } 
+    ]
+}
+```
+
+### Peticiones POST
+
+Mantenemos el email y la contraseña del administrador para poder estar validados y acceder a las rutas. Después si queremos añadir un usuario creamos una línea más en el JSON con los datos del usuario, en este caso con tan solo añadir el email y la contraseñia bastaría ya que el resto de cosas se añaden como datos por defecto en la base de datos.
+
+- `POST /admin/agregarJugador`: Esta es la ruta que necesitará el administrador para poder añadir un nuevo registro.
+
+### Peticiones DELETE
+- `DELETE /admin/jugador/{id}`: Con esta ruta el administrador elimina un jugador de la base datos dada su id. Por ejemplo  /admin/jugador/14 (Elimina al usuario con id=14).
+
