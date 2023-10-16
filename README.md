@@ -59,5 +59,4 @@ Mantenemos el email y la contraseña del administrador para poder estar validado
 
 ### Peticiones POST
 - `POST /crearPartida`: Con esta ruta los jugadores podrán crear una partida de buscaminas con un tamaño predeterminado. Si no se especifica ningún argumento más el tablero será de un tamaño de 20 casillas e incluirá 3 bombas
-- `POST /crearPartida/{tamañoTablero}{cantidadMinas}`: Con esta ruta los jugadores podrán crear una partida con el tamaño que ellos quieran. 
-
+- `POST /crearPartida/{tamañoTablero}/{cantidadMinas}`: Con esta ruta los jugadores podrán crear una partida con el tamaño que ellos quieran. POr ejemplo /crearPartida/12/3 (Crea una partida de con un tablero de 12 casillas y 3 bombas).
