@@ -62,9 +62,9 @@ Mantenemos el email y la contraseña del administrador para poder estar validado
   + `-1`: Indica que el jugador ha perdido la partida.
 
 ### Peticiones POST
-- `POST /crearPartida`: Con esta ruta los jugadores podrán crear una partida de buscaminas con un tamaño predeterminado. Si no se especifica ningún argumento más el tablero será de un tamaño de 20 casillas e incluirá 3 bombas
+- `POST /crearPartida`: Con esta ruta los jugadores podrán crear una partida de buscaminas con un tamaño predeterminado. Si no se especifica ningún argumento más el tablero será de un tamaño de 20 casillas e incluirá 3 bombas.
 - `POST /crearPartida/{tamañoTablero}/{cantidadMinas}`: Con esta ruta los jugadores podrán crear una partida con el tamaño que ellos quieran. POr ejemplo /crearPartida/12/3 (Crea una partida de con un tablero de 12 casillas y 3 bombas).
-- `POST/jugar/{idPartida}`: Con esta ruta los jugadores podrán jugar cualquiera de las partidas que tengan abiertas, tan solo necesitan saber el id de la partida, que conoceran de antemano tras haber hecho la petición `GET /jugar`. Para poder indicar la casilla que queramos destapar necesitamos un JSON tal como este:
+- `POST /jugar/{idPartida}`: Con esta ruta los jugadores podrán jugar cualquiera de las partidas que tengan abiertas, tan solo necesitan saber el id de la partida, que conoceran de antemano tras haber hecho la petición `GET /jugar`. Para poder indicar la casilla que queramos destapar necesitamos un JSON tal como este:
 
 ```json
 {
@@ -73,3 +73,4 @@ Mantenemos el email y la contraseña del administrador para poder estar validado
    "casilla": 0
 }
 ```
+- `POST /rendirse/{idPartida}`: Con esta ruta los jugadores podrán solicitar rendirse, por lo tanto la partida se considerá como perdida. Por ejemplo /rendirse/29 (El usuario se rinde en la partida con id=29).
