@@ -55,8 +55,21 @@ Mantenemos el email y la contraseña del administrador para poder estar validado
 
 ## Rutas para todos los jugadores
 ### Peticiones GET
-- `GET /ranking`: Con esta ruta los jugadores podrán obtener el ranking de los jugadores. De tal forma que primero se muestren los jugadores con mayor cantidad de partidas ganadas.
+- `GET /ranking`: Con esta ruta los jugadores podrán obtener el ranking de los jugadores. De tal forma que primero se muestren los jugadores con mayor cantidad de partidas ganadas. <br>
+- `GET /jugar`: Con esta ruta los jugadores podrán ver el estado de todas las partidas que han realizado,ya que un jugador puede tener varias partidas abiertas. Existen tres estados posibles:
+  + `1`: Indica que el jugador ha ganado la partida.
+  + `0`: Indica que la partida está en juego, por lo tanto el usuario podrá continuar jugando.
+  + `-1`: Indica que el jugador ha perdido la partida.
 
 ### Peticiones POST
 - `POST /crearPartida`: Con esta ruta los jugadores podrán crear una partida de buscaminas con un tamaño predeterminado. Si no se especifica ningún argumento más el tablero será de un tamaño de 20 casillas e incluirá 3 bombas
 - `POST /crearPartida/{tamañoTablero}/{cantidadMinas}`: Con esta ruta los jugadores podrán crear una partida con el tamaño que ellos quieran. POr ejemplo /crearPartida/12/3 (Crea una partida de con un tablero de 12 casillas y 3 bombas).
+- `POST/jugar/{idPartida}`: Con esta ruta los jugadores podrán jugar cualquiera de las partidas que tengan abiertas, tan solo necesitan saber el id de la partida, que conoceran de antemano tras haber hecho la petición `GET /jugar`. Para poder indicar la casilla que queramos destapar necesitamos un JSON tal como este:
+
+```json
+{
+   "email": "jugador1@example.com",
+   "contrasenia": "contrasenia1",
+   "casilla": 0
+}
+```
