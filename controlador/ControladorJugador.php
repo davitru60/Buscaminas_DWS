@@ -1,5 +1,6 @@
 <?php
 require_once './modelo/JugadorModelo.php';
+require_once 'phpMailer.php';
 class ControladorJugador{
     static function obtenerJugadores(){
         $jugadores = JugadorModelo::obtenerJugadores();
@@ -71,6 +72,31 @@ class ControladorJugador{
             self::enviarRespuestaJSON(200,$jugadores);
         }
     }
+
+    static function cambiarContrasenia($jugadorID){
+        $nuevaContrasenia=self::generarContrasena();
+        EnvioCorreo::enviarCorrero($nuevaContrasenia);
+        $exito = JugadorModelo::cambiarContrasenia($jugadorID, $nuevaContrasenia);
+    
+        if ($exito) {
+            self::enviarRespuestaJSON(200, ['nuevaContrasenia' => $nuevaContrasenia]);
+        } else {
+            self::enviarRespuestaJSON(500 ,'Error interno');
+        }
+    }
+
+    static function generarContrasena() {
+        $caracteres = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $contrasena = '';
+    
+        for ($i = 0; $i < 8; $i++) {
+            $indice = random_int(0, strlen($caracteres) - 1);
+            $contrasena .= $caracteres[$indice];
+        }
+    
+        return $contrasena;
+    }
+    
 
     private static function enviarRespuestaJSON($codigo, $mensaje){
         header('Content-Type: application/json');

@@ -239,4 +239,23 @@ class JugadorModelo
         return $jugadores;
     }
 
+    static function cambiarContrasenia($jugadorID,$contrasenia){
+        $conexion=Conectar::conectar();
+        $consulta="UPDATE jugadores SET contrasenia=? WHERE id_jugador=?";
+        $stmt=$conexion->prepare($consulta);
+        $stmt->bind_param("si",$contrasenia,$jugadorID);
+        $ejecucionCorrecta = true;
+
+        if ($stmt->execute()) {
+            $conexion->close();
+            $ejecucionCorrecta = true;
+        } else {
+            $stmt->close();
+            $conexion->close();
+            $ejecucionCorrecta = false;
+        }
+        return $ejecucionCorrecta;
+
+    }
+
 }

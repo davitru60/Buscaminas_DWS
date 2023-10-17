@@ -7,7 +7,7 @@ class PartidaModelo
 
     }
 
-    static function esPartidaCreada($jugadorID,$partidaID)
+    static function esPartidaCreada($jugadorID, $partidaID)
     {
 
         $resultado = false;
@@ -16,7 +16,7 @@ class PartidaModelo
         $stmt = $conexion->prepare($consulta);
 
         if ($stmt) {
-            $stmt->bind_param("ii", $jugadorID,$partidaID);
+            $stmt->bind_param("ii", $jugadorID, $partidaID);
             $stmt->execute();
 
             $stmt->bind_result($numFilas);
@@ -37,14 +37,14 @@ class PartidaModelo
         return $resultado;
     }
 
-    static function obtenerEstadoPartida($jugadorID,$partidaID)
+    static function obtenerEstadoPartida($jugadorID, $partidaID)
     {
         $conexion = Conectar::conectar();
         $consulta = "SELECT estado_partida FROM partidas WHERE id_jugador = ? and id_partida=?";
         $stmt = $conexion->prepare($consulta);
 
         if ($stmt) {
-            $stmt->bind_param("ii", $jugadorID,$partidaID);
+            $stmt->bind_param("ii", $jugadorID, $partidaID);
             $stmt->execute();
             $stmt->bind_result($estadoPartida);
 
@@ -58,77 +58,81 @@ class PartidaModelo
         }
     }
 
- 
-    static function perderPartida($jugadorID){
+
+    static function perderPartida($jugadorID)
+    {
         $conexion = Conectar::conectar();
         $consulta = "UPDATE partidas SET estado_partida = -1 WHERE id_jugador = ?";
         $stmt = $conexion->prepare($consulta);
 
         $ejecucionCorrecta = true;
 
-    
+
         if ($stmt) {
             $stmt->bind_param("i", $jugadorID);
             $stmt->execute();
             $stmt->close();
             $ejecucionCorrecta = true;
-        }else{
+        } else {
             $ejecucionCorrecta = false;
         }
 
         return $ejecucionCorrecta;
     }
 
-    static function ganarPartida($jugadorID){
+    static function ganarPartida($jugadorID)
+    {
         $conexion = Conectar::conectar();
         $consulta = "UPDATE partidas SET estado_partida = 1 WHERE id_jugador = ?";
         $stmt = $conexion->prepare($consulta);
 
         $ejecucionCorrecta = true;
 
-    
+
         if ($stmt) {
             $stmt->bind_param("i", $jugadorID);
             $stmt->execute();
             $stmt->close();
             $ejecucionCorrecta = true;
-        }else{
+        } else {
             $ejecucionCorrecta = false;
         }
 
         return $ejecucionCorrecta;
     }
 
-    static function actualizarTableroJugador($tableroJugador,$jugadorID,$partidaID){
+    static function actualizarTableroJugador($tableroJugador, $jugadorID, $partidaID)
+    {
         $conexion = Conectar::conectar();
-        $consulta="UPDATE partidas SET tablero_jugador=? WHERE id_jugador=? AND id_partida=?";
+        $consulta = "UPDATE partidas SET tablero_jugador=? WHERE id_jugador=? AND id_partida=?";
         $stmt = $conexion->prepare($consulta);
-        $ejecucionCorrecta = true; 
+        $ejecucionCorrecta = true;
 
-        if($stmt){
-            $stmt->bind_param("sii",$tableroJugador, $jugadorID,$partidaID);
+        if ($stmt) {
+            $stmt->bind_param("sii", $tableroJugador, $jugadorID, $partidaID);
             $stmt->execute();
             $stmt->close();
             $ejecucionCorrecta = true;
-        }else{
+        } else {
             $ejecucionCorrecta = false;
-        } 
-        
+        }
+
         return $ejecucionCorrecta;
     }
-    
-    static function obtenerTableroOculto($jugadorID,$partidaID){
+
+    static function obtenerTableroOculto($jugadorID, $partidaID)
+    {
         $conexion = Conectar::conectar();
         $consulta = "SELECT tablero_oculto FROM partidas WHERE id_jugador = ? and id_partida=?";
         $stmt = $conexion->prepare($consulta);
         $tableroOculto = null;
-    
+
         if ($stmt) {
-            $stmt->bind_param("ii", $jugadorID,$partidaID);
+            $stmt->bind_param("ii", $jugadorID, $partidaID);
             $stmt->execute();
-    
+
             $stmt->bind_result($tableroOculto);
-    
+
             if ($stmt->fetch()) {
                 $stmt->close();
                 return $tableroOculto;
@@ -141,18 +145,19 @@ class PartidaModelo
         }
     }
 
-    static function obtenerTableroJugador($jugadorID,$partidaID) {
+    static function obtenerTableroJugador($jugadorID, $partidaID)
+    {
         $conexion = Conectar::conectar();
         $consulta = "SELECT tablero_jugador FROM partidas WHERE id_jugador = ? AND id_partida=?";
         $stmt = $conexion->prepare($consulta);
         $tableroJugador = null;
-    
+
         if ($stmt) {
-            $stmt->bind_param("ii", $jugadorID,$partidaID);
+            $stmt->bind_param("ii", $jugadorID, $partidaID);
             $stmt->execute();
-    
+
             $stmt->bind_result($tableroJugador);
-    
+
             if ($stmt->fetch()) {
                 $stmt->close();
                 return $tableroJugador;
@@ -165,29 +170,70 @@ class PartidaModelo
         }
     }
 
-    static function obtenerPartidasJugador($jugadorID) {
+    static function obtenerPartidasJugador($jugadorID)
+    {
         $conexion = Conectar::conectar();
         $consulta = "SELECT id_partida, estado_partida FROM partidas WHERE id_jugador = ?";
         $stmt = $conexion->prepare($consulta);
-    
+
         if ($stmt) {
-            $stmt->bind_param("i", $jugadorID); 
+            $stmt->bind_param("i", $jugadorID);
             $stmt->execute();
             $resultado = $stmt->get_result();
-    
+
             // Procesar el resultado y almacenarlo en un array
             $partidas = array();
             while ($fila = $resultado->fetch_assoc()) {
                 $partidas[] = $fila;
             }
-    
+
             $stmt->close();
             $conexion->close();
-    
+
             return $partidas;
         } else {
             $conexion->close();
             return false;
         }
+    }
+
+    static function actualizarPartidasGanadas($jugadorID)
+    {
+        $conexion = Conectar::conectar();
+        $consulta = "UPDATE jugadores SET partidas_jugadas = partidas_jugadas + 1, partidas_ganadas = partidas_ganadas + 1 WHERE id_jugador=?";
+        $stmt = $conexion->prepare($consulta);
+        $ejecucionCorrecta = true;
+
+        if ($stmt) {
+            $stmt->bind_param("i", $jugadorID);
+            $stmt->execute();
+            $stmt->close(); // Cierra la consulta
+
+            $ejecucionCorrecta = true;
+        } else {
+            $ejecucionCorrecta = false;
+        }
+
+        return $ejecucionCorrecta;
+    }
+
+    static function actualizarPartidasJugadas($jugadorID)
+    {
+        $conexion = Conectar::conectar();
+        $consulta = "UPDATE jugadores SET partidas_jugadas = partidas_jugadas + 1 WHERE id_jugador=?";
+        $stmt = $conexion->prepare($consulta);
+        $ejecucionCorrecta = true;
+
+        if ($stmt) {
+            $stmt->bind_param("i", $jugadorID);
+            $stmt->execute();
+            $stmt->close();
+            $ejecucionCorrecta = true;
+
+        } else {
+            $ejecucionCorrecta = false;
+        }
+
+        return $ejecucionCorrecta;
     }
 }

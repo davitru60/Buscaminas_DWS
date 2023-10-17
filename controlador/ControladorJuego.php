@@ -22,6 +22,7 @@ class ControladorJuego{
         return PartidaModelo::ObtenerEstadoPartida($jugadorID,$partidaID);
     }
 
+
     static function jugar($jugadorID,$partidaID,$casilla){
         $tableroOculto=self::obtenerTableroOculto($jugadorID,$partidaID);
         $tableroJugador=self::obtenerTableroJugador($jugadorID,$partidaID);
@@ -36,13 +37,19 @@ class ControladorJuego{
         $mensajeStr =  self::convertirArrayACadena($mensaje);
         $tableroActualizadoStr = self::convertirArrayACadena($tableroActualizado);
 
-        if ($estadoPartida == 0 || $estadoPartida === 1) {
+        
+        if ($estadoPartida == 0) {
             PartidaModelo::actualizarTableroJugador($tableroActualizadoStr, $jugadorID,$partidaID);
         } elseif ($estadoPartida === -1) {
             PartidaModelo::perderPartida($jugadorID);
             PartidaModelo::actualizarTableroJugador($tableroActualizadoStr, $jugadorID,$partidaID);
+            PartidaModelo::actualizarPartidasJugadas($jugadorID);
+          
         }else if($estadoPartida === 1){
             PartidaModelo::ganarPartida($jugadorID);
+            PartidaModelo::actualizarTableroJugador($tableroActualizadoStr, $jugadorID,$partidaID);
+            PartidaModelo::actualizarPartidasGanadas($jugadorID);
+           
         }
 
         $respuesta = array(
@@ -59,7 +66,7 @@ class ControladorJuego{
         if($partidas){
             self::enviarRespuestaJSON(200, $partidas);
         }else{
-            self::enviarRespuestaJSON(404, 'Error al obtener las partidas del jugador'); 
+            self::enviarRespuestaJSON(404, 'El jugador no tiene ninguna partida'); 
         }
 
     }
@@ -86,8 +93,10 @@ class ControladorJuego{
 
         // Rendirse
         $partidaActual = PartidaModelo::perderPartida($jugadorID);
+        PartidaModelo::actualizarTableroJugador($tableroStr, $jugadorID,$partidaID);
         if ($partidaActual) {
             $respuestas['estado_partida'] = 'Se ha cerrado la partida';
+            PartidaModelo::actualizarPartidasJugadas($jugadorID);
         } else {
             $respuestas['estado_partida'] = 'Algo fue mal';
         }
