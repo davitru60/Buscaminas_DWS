@@ -74,3 +74,4 @@ Mantenemos el email y la contraseña del administrador para poder estar validado
 }
 ```
 - `POST /rendirse/{idPartida}`: Con esta ruta los jugadores podrán solicitar rendirse, por lo tanto la partida se considerá como perdida. Por ejemplo /rendirse/29 (El usuario se rinde en la partida con id=29).
+- `POST /cambiarContrasenia`: Con esta ruta los jugadores podrán solicitar un cambio de contraseña.
