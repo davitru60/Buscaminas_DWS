@@ -1,10 +1,7 @@
 <?php
 require_once './modelo/JugadorModelo.php';
-require_once './modelo/TableroModelo.php';
-require_once './modelo/PartidaModelo.php';
-require_once './modelo/Factoria.php';
-
-class Controlador{
+require_once 'phpMailer.php';
+class ControladorJugador{
     static function obtenerJugadores(){
         $jugadores = JugadorModelo::obtenerJugadores();
         if($jugadores){
@@ -35,8 +32,9 @@ class Controlador{
         }
     }
 
-    static function modificarJugador($jugador){
-        if(JugadorModelo::modificarJugador($jugador)){
+
+    static function modificarJugador($email,$contrasenia,$jugadorID){
+        if(JugadorModelo::modificarJugador($email,$contrasenia,$jugadorID)){
             self::enviarRespuestaJSON(200, 'Jugador actualizado exitosamente');
         }else{
             self::enviarRespuestaJSON(404, 'Jugador no encontrado o error en la actualización');
@@ -76,80 +74,31 @@ class Controlador{
         }
     }
 
-    static function crearTablero($tamanio,$numMinas,$jugadorID){
-        $tableroOculto=Factoria::crearTableroOculto($tamanio,$numMinas);
-        $tableroJugador=Factoria::crearTableroJugador($tamanio);
-
-        if (TableroModelo::insertarTablero($jugadorID, $tableroOculto,$tableroJugador)) {
-            self::enviarRespuestaJSON(201, 'Tablero creado y registrado exitosamente');
+    static function cambiarContrasenia($jugadorID){
+        $nuevaContrasenia=self::generarContrasena();
+        $contraseniaHash = md5($nuevaContrasenia);
+        EnvioCorreo::enviarCorrero($nuevaContrasenia);
+        $exito = JugadorModelo::cambiarContrasenia($jugadorID, $contraseniaHash);
+    
+        if ($exito) {
+            self::enviarRespuestaJSON(200, ['nuevaContrasenia' => $nuevaContrasenia]);
         } else {
-            self::enviarRespuestaJSON(500, 'Error al crear y registrar el tablero');
-        }     
-    }
-
-    static function esPartidaCreada($jugadorID){
-        return PartidaModelo::esPartidaCreada($jugadorID);
-    }
-
-    static function obtenerEstadoPartida($jugadorID){
-        return PartidaModelo::ObtenerEstadoPartida($jugadorID);
-    }
-
-    static function jugar($jugadorID,$casilla){
-        $tableroOculto=self::obtenerTableroOculto($jugadorID);
-        $tableroJugador=self::obtenerTableroJugador($jugadorID);
-        
-
-        $partida=Factoria::crearPartida($tableroOculto,$tableroJugador);
-        $resultado= $partida->destaparCasilla($casilla);
-        $mensaje= $resultado['mensaje'];
-        $tableroActualizado= $resultado['tableroJugador'];
-    }
-
-
-     static function obtenerTableroOculto($jugadorID){
-        $tableroOculto=PartidaModelo::obtenerTableroOculto($jugadorID);
-
-        if($tableroOculto !==null){
-            $tableroOcultoArray = explode(' ', $tableroOculto);
-            return $tableroOcultoArray;
+            self::enviarRespuestaJSON(500 ,'Error interno');
         }
     }
 
-    private static function obtenerTableroJugador($jugadorID) {
-        $tablero = PartidaModelo::obtenerTableroJugador($jugadorID);
-        if ($tablero !== null) {
-            $tableroArray = explode(' ',$tablero);
-            return $tableroArray;
+    static function generarContrasena() {
+        $caracteres = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $contrasena = '';
+    
+        for ($i = 0; $i < 8; $i++) {
+            $indice = random_int(0, strlen($caracteres) - 1);
+            $contrasena .= $caracteres[$indice];
         }
-        return null;
+    
+        return $contrasena;
     }
     
-    static function rendirse($jugadorID) {
-        $respuestas = array();
-    
-        // Obtener el tablero
-        $tablero = self::obtenerTableroJugador($jugadorID);
-        if ($tablero !== null) {
-            $tableroStr = implode('', $tablero); // Convierte el array en una cadena
-            
-            $tableroStr = str_replace(["\n", "\r"], '', $tableroStr);
-            $respuestas['tablero'] = $tableroStr;
-            
-        }
-    
-        // Rendirse
-        $partidaActual = PartidaModelo::rendirse($jugadorID);
-        if ($partidaActual) {
-            $respuestas['estado_partida'] = 'Se ha cerrado la partida';
-        } else {
-            $respuestas['estado_partida'] = 'Algo fue mal';
-        }
-    
-        // Enviar todas las respuestas en un solo JSON
-        self::enviarRespuestaJSON(200, $respuestas);
-    }
-
 
     private static function enviarRespuestaJSON($codigo, $mensaje){
         header('Content-Type: application/json');
