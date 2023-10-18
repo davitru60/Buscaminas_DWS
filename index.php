@@ -22,12 +22,13 @@ function manejadorSolicitudes()
     if ($datosDecodificados) {
         $email = $datosDecodificados['email'];
         $contrasenia = $datosDecodificados['contrasenia'];
-        $usuario = ControladorJugador::validarJugador($email, $contrasenia);
+        $contraseniaHash = md5($contrasenia);
+        $usuario = ControladorJugador::validarJugador($email, $contraseniaHash);
 
         if ($usuario) {
             switch ($args[1]) {
                 case 'admin':
-                    $esAdministrador = ControladorJugador::esAdministrador($email, $contrasenia);
+                    $esAdministrador = ControladorJugador::esAdministrador($email, $contraseniaHash);
                     if ($esAdministrador) {
                         peticionesAdministrador($args, $datosDecodificados);
                     } else {
@@ -103,14 +104,17 @@ function metodoPostAdmin($args, $datosDecodificados)
 {
     if (count($args) == 2 && $args[2] == 'agregarJugador') {
         $datosJugador = $datosDecodificados['jugador'][0];
+        $email = $datosJugador['email'];
+        $contrasenia = $datosJugador['contrasenia'];
+        $contraseniaHash = md5($contrasenia);
+        $administrador = $datosJugador['es_administrador'];
 
         if (
-            isset($datosJugador['email']) && isset($datosJugador['contrasenia']) &&
-            filter_var($datosJugador['email'], FILTER_VALIDATE_EMAIL) &&
-            !empty($datosJugador['contrasenia'])
+            isset($email) && isset($contrasenia) && filter_var($email, FILTER_VALIDATE_EMAIL) &&
+            !empty($contrasenia)
         ) {
-            $esAdmin = isset($datosJugador['es_administrador']) ? $datosJugador['es_administrador'] : false;
-            $jugador = Factoria::crearJugador($datosJugador['email'], $datosJugador['contrasenia'], $esAdmin);
+            $esAdmin = isset($administrador) ? $administrador : false;
+            $jugador = Factoria::crearJugador($email, $contraseniaHash, $esAdmin);
             ControladorJugador::aniadirJugador($jugador);
         } else {
             enviarRespuesta(400, 'Datos de jugador incorrectos para POST');
@@ -127,15 +131,17 @@ function metodoPutAdmin($args, $datosDecodificados)
         $datosJugador = $datosDecodificados['jugador'][0];
         $emailActual = $datosJugador['emailActual'];
         $contraseniaActual = $datosJugador['contraseniaActual'];
+        $contraseniaActualHash = md5($contraseniaActual);
         $emailActualizado = $datosJugador['emailActualizado'];
-        $contraseniaActualizada = $datosJugador ['contraseniaActualizada'];
+        $contraseniaActualizada = $datosJugador['contraseniaActualizada'];
+        $contraseniaActualizadaHash= md5($contraseniaActualizada);
 
         if (
-            isset($emailActual) && isset($contraseniaActual) && filter_var($emailActual, FILTER_VALIDATE_EMAIL) &&
-            !empty($contraseniaActual)
+            isset($emailActual) && isset($contraseniaActualHash) && filter_var($emailActual, FILTER_VALIDATE_EMAIL) &&
+            !empty($contraseniaActualHash)
         ) {
-            $jugadorID = ControladorJugador::obtenerIDJugador($emailActual, $contraseniaActual);
-            ControladorJugador::modificarJugador($emailActualizado, $contraseniaActualizada, $jugadorID);
+            $jugadorID = ControladorJugador::obtenerIDJugador($emailActual, $contraseniaActualHash);
+            ControladorJugador::modificarJugador($emailActualizado, $contraseniaActualizadaHash, $jugadorID);
         } else {
             enviarRespuesta(400, 'Datos de jugador incorrectos para PUT');
         }
@@ -160,7 +166,8 @@ function peticionCrearPartida($args, $datosDecodificados)
     $metodoPeticion = $_SERVER['REQUEST_METHOD'];
     $email = $datosDecodificados['email'];
     $contrasenia = $datosDecodificados['contrasenia'];
-    $jugadorID = ControladorJugador::obtenerIDJugador($email, $contrasenia);
+    $contraseniaHash = md5($contrasenia);
+    $jugadorID = ControladorJugador::obtenerIDJugador($email, $contraseniaHash);
 
 
     if ($metodoPeticion === 'POST') {
@@ -181,8 +188,9 @@ function peticionesJugar($args, $datosDecodificados)
     $metodoPeticion = $_SERVER['REQUEST_METHOD'];
     $email = $datosDecodificados['email'];
     $contrasenia = $datosDecodificados['contrasenia'];
+    $contraseniaHash = md5($contrasenia);
     $casilla = $datosDecodificados['casilla'];
-    $jugadorID = ControladorJugador::obtenerIDJugador($email, $contrasenia);
+    $jugadorID = ControladorJugador::obtenerIDJugador($email, $contraseniaHash);
 
 
     if ($metodoPeticion === 'GET') {
@@ -223,7 +231,8 @@ function peticionRendicion($args, $datosDecodificados)
     $metodoPeticion = $_SERVER['REQUEST_METHOD'];
     $email = $datosDecodificados['email'];
     $contrasenia = $datosDecodificados['contrasenia'];
-    $jugadorID = ControladorJugador::obtenerIDJugador($email, $contrasenia);
+    $contraseniaHash = md5($contrasenia);
+    $jugadorID = ControladorJugador::obtenerIDJugador($email, $contraseniaHash);
 
 
 
@@ -262,7 +271,8 @@ function peticionesContrasenia($datosDecodificados)
     if ($metodoPeticion === 'POST') {
         $email = $datosDecodificados['email'];
         $contrasenia = $datosDecodificados['contrasenia'];
-        $jugadorID = ControladorJugador::obtenerIDJugador($email, $contrasenia);
+        $contraseniaHash = md5($contrasenia);
+        $jugadorID = ControladorJugador::obtenerIDJugador($email, $contraseniaHash);
         ControladorJugador::cambiarContrasenia($jugadorID);
     } else {
         enviarRespuesta(405, 'Metodo no permitido');

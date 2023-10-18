@@ -76,8 +76,9 @@ class ControladorJugador{
 
     static function cambiarContrasenia($jugadorID){
         $nuevaContrasenia=self::generarContrasena();
+        $contraseniaHash = md5($nuevaContrasenia);
         EnvioCorreo::enviarCorrero($nuevaContrasenia);
-        $exito = JugadorModelo::cambiarContrasenia($jugadorID, $nuevaContrasenia);
+        $exito = JugadorModelo::cambiarContrasenia($jugadorID, $contraseniaHash);
     
         if ($exito) {
             self::enviarRespuestaJSON(200, ['nuevaContrasenia' => $nuevaContrasenia]);
