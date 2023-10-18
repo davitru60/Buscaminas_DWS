@@ -11,11 +11,11 @@ Este proyecto se centra en el desarrollo de una API REST realizada en PHP, que p
 - Primero será necesario que iniciemos un servidor local para poder realizar las peticiones HTTP, para ello en la terminal escribimos lo siguiente:
   `php -S localhost:9000` (El puerto puede ser cualquier otro numero distinto a 9000).
   
-- Después, para poder acceder a las rutas del servicio tendremos que proporcionar un usuario correcto en formato JSON, he aquí un ejemplo:
+- Después, para poder acceder a las rutas del servicio tendremos que proporcionar un usuario correcto en formato JSON, he aquí un ejemplo de formato correcto:
 ```json
 {
-   "email": "jugador1@example.com",
-   "contrasenia": "contrasenia1"
+   "email": "mahiro2425@cindalle.com",
+   "contrasenia": "Qh7pi4pp"
 }
 ```
 
@@ -23,6 +23,7 @@ Este usuario se añadirá en el cuerpo de la petición. <br>
 <p align="center">
   <img src="https://github.com/davitru60/Buscaminas_DWS/assets/84265707/6637f9ff-d5b8-4c57-98c0-10ce0f6d5872" width="700">
 </p>
+
 
 ## Rutas para los administradores
 El administrador gestionará: altas, bajas, modificaciones, activaciones y accesos de los usuarios. A estas rutas solo tendrán acceso los administradores, por lo tanto cualquier otro usuario que no sea administrador no tendrá permisos para acceder.
@@ -35,8 +36,8 @@ El administrador gestionará: altas, bajas, modificaciones, activaciones y acces
 Para que el administrador pueda añadir nuevos usuarios a la base de datos, necesitamos un JSON con el siguiente formato:
 ```json
 {
-   "email": "jugador1@example.com",
-   "contrasenia": "contrasenia1",
+   "email": "mahiro2425@cindalle.com",
+   "contrasenia": "Qh7pi4pp"
    "jugador": [
       {
         "email":"jugadorPrueba@example.com",
@@ -55,7 +56,7 @@ Para que el administrador pueda modificar un usuario de la base de datos, necesi
 ```json
 {
    "email": "mahiro2425@cindalle.com",
-   "contrasenia": "y4GexzL4",
+   "contrasenia": "Qh7pi4pp"
    "jugador": [
       {
         "emailActual": "jugador2@example.com",
@@ -86,8 +87,8 @@ Para que el administrador pueda modificar un usuario de la base de datos, necesi
 
 ```json
 {
-   "email": "jugador1@example.com",
-   "contrasenia": "contrasenia1",
+   "email": "mahiro2425@cindalle.com",
+   "contrasenia": "Qh7pi4pp"
    "casilla": 0
 }
 ```
