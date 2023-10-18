@@ -19,9 +19,10 @@ Este proyecto se centra en el desarrollo de una API REST realizada en PHP, que p
 }
 ```
 
+
 Este usuario se añadirá en el cuerpo de la petición. <br>
 <p align="center">
-  <img src="https://github.com/davitru60/Buscaminas_DWS/assets/84265707/6637f9ff-d5b8-4c57-98c0-10ce0f6d5872" width="700">
+  <img src="https://github.com/davitru60/Buscaminas_DWS/assets/84265707/4d6964ac-1afb-4ea1-b403-f04cbc48e499" width="700">
 </p>
 
 
