@@ -18,6 +18,8 @@ Este proyecto se centra en el desarrollo de una API REST realizada en PHP, que p
    "contrasenia": "Qh7pi4pp"
 }
 ```
+> Este es el usuario que el cliente podrá usar para acceder a las rutas 
+
 
 
 Este usuario se añadirá en el cuerpo de la petición. <br>
