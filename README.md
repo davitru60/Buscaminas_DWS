@@ -50,6 +50,24 @@ Mantenemos el email y la contraseña del administrador para poder estar validado
 
 - `POST /admin/agregarJugador`: Esta es la ruta que necesitará el administrador para poder añadir un nuevo registro.
 
+### Peticiones PUT
+Para que el administrador pueda modificar un usuario de la base de datos, necesitamos un JSON con el siguiente formato:
+```json
+{
+   "email": "mahiro2425@cindalle.com",
+   "contrasenia": "y4GexzL4",
+   "jugador": [
+      {
+        "emailActual": "jugador2@example.com",
+        "contraseniaActual": "contrasenia2",
+        "emailActualizado": "jugadorPrueba@example.com",
+        "contraseniaActualizada":"nuevaContrasenia"
+      } 
+    ]
+}
+```
+- `PUT /admin/modificarJugador`: Esta es la ruta que necesitará el administrador para poder modificar un registro.
+
 ### Peticiones DELETE
 - `DELETE /admin/jugador/{id}`: Con esta ruta el administrador elimina un jugador de la base datos dada su id. Por ejemplo  /admin/jugador/14 (Elimina al usuario con id=14).
 
