@@ -75,18 +75,13 @@ class JugadorModelo
         return $ejecucionCorrecta;
     }
 
-    static function modificarJugador(Jugador $jugador)
+    static function modificarJugador($email,$contrasenia,$jugadorID)
     {
         $conexion = Conectar::conectar();
         $consulta = "UPDATE jugadores SET email=?,contrasenia=? WHERE id_jugador=?";
         $stmt = $conexion->prepare($consulta);
-        $jugador = new Jugador();
-
-        $email = $jugador->getEmail();
-        $contrasenia = $jugador->getContrasenia();
-        $id = $jugador->getId();
-
-        $stmt->bind_param("ssi", $email, $contrasenia, $id);
+        
+        $stmt->bind_param("ssi", $email, $contrasenia, $jugadorID);
 
         $ejecucionCorrecta = true;
 

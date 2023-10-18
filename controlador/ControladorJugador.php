@@ -32,8 +32,9 @@ class ControladorJugador{
         }
     }
 
-    static function modificarJugador($jugador){
-        if(JugadorModelo::modificarJugador($jugador)){
+
+    static function modificarJugador($email,$contrasenia,$jugadorID){
+        if(JugadorModelo::modificarJugador($email,$contrasenia,$jugadorID)){
             self::enviarRespuestaJSON(200, 'Jugador actualizado exitosamente');
         }else{
             self::enviarRespuestaJSON(404, 'Jugador no encontrado o error en la actualización');

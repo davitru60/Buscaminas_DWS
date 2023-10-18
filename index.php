@@ -77,6 +77,9 @@ function peticionesAdministrador($args, $datosDecodificados)
         metodoGetAdmin($args);
     } elseif ($metodoPeticion === 'POST') {
         metodoPostAdmin($args, $datosDecodificados);
+
+    } elseif ($metodoPeticion === 'PUT') {
+        metodoPutAdmin($args, $datosDecodificados);
     } elseif ($metodoPeticion === 'DELETE') {
         metodoDeleteAdmin($args);
     } else {
@@ -114,6 +117,31 @@ function metodoPostAdmin($args, $datosDecodificados)
         }
     } else {
         enviarRespuesta(400, 'Solicitud POST incorrecta');
+    }
+}
+
+function metodoPutAdmin($args, $datosDecodificados)
+{
+
+    if (count($args) == 2 && $args[2] == 'modificarJugador') {
+        $datosJugador = $datosDecodificados['jugador'][0];
+        $emailActual = $datosJugador['emailActual'];
+        $contraseniaActual = $datosJugador['contraseniaActual'];
+        $emailActualizado = $datosJugador['emailActualizado'];
+        $contraseniaActualizada = $datosJugador ['contraseniaActualizada'];
+
+        if (
+            isset($emailActual) && isset($contraseniaActual) && filter_var($emailActual, FILTER_VALIDATE_EMAIL) &&
+            !empty($contraseniaActual)
+        ) {
+            $jugadorID = ControladorJugador::obtenerIDJugador($emailActual, $contraseniaActual);
+            ControladorJugador::modificarJugador($emailActualizado, $contraseniaActualizada, $jugadorID);
+        } else {
+            enviarRespuesta(400, 'Datos de jugador incorrectos para PUT');
+        }
+
+    } else {
+        enviarRespuesta(400, 'Solicitud PUT incorrecta');
     }
 }
 
@@ -196,7 +224,7 @@ function peticionRendicion($args, $datosDecodificados)
     $email = $datosDecodificados['email'];
     $contrasenia = $datosDecodificados['contrasenia'];
     $jugadorID = ControladorJugador::obtenerIDJugador($email, $contrasenia);
-   
+
 
 
     if ($metodoPeticion === 'POST') {
@@ -204,7 +232,7 @@ function peticionRendicion($args, $datosDecodificados)
             $partidaID = $args[2];
             $partidaAbierta = ControladorJuego::obtenerEstadoPartida($jugadorID, $partidaID);
             $esPartidaCreada = ControladorJuego::esPartidaCreada($jugadorID, $partidaID);
-            if ($esPartidaCreada&& $partidaAbierta !==-1) {
+            if ($esPartidaCreada && $partidaAbierta !== -1) {
                 ControladorJuego::rendirse($jugadorID, $partidaID);
             } else {
                 enviarRespuesta(404, 'No tienes partidas creadas');
@@ -222,23 +250,24 @@ function peticionRanking()
     $metodoPeticion = $_SERVER['REQUEST_METHOD'];
     if ($metodoPeticion === 'GET') {
         ControladorJugador::obtenerRanking();
-    }else{
-        enviarRespuesta(405,'Metodo no permitido');
+    } else {
+        enviarRespuesta(405, 'Metodo no permitido');
     }
 }
 
-function peticionesContrasenia($datosDecodificados){
+function peticionesContrasenia($datosDecodificados)
+{
     $metodoPeticion = $_SERVER['REQUEST_METHOD'];
 
-    if($metodoPeticion === 'POST'){
+    if ($metodoPeticion === 'POST') {
         $email = $datosDecodificados['email'];
         $contrasenia = $datosDecodificados['contrasenia'];
         $jugadorID = ControladorJugador::obtenerIDJugador($email, $contrasenia);
         ControladorJugador::cambiarContrasenia($jugadorID);
-    }else{
-        enviarRespuesta(405,'Metodo no permitido');
+    } else {
+        enviarRespuesta(405, 'Metodo no permitido');
     }
-    
+
 }
 
 function enviarRespuesta($codigo, $mensaje)
