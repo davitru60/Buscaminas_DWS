@@ -1,2 +1,3 @@
-
 *.ini
+bbdd/bbdd.sql
+bbdd/Constantes.php
